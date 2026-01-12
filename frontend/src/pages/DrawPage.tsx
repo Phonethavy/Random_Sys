@@ -18,9 +18,7 @@ export default function DrawPage() {
   const [winners, setWinners] = useState<Winner[]>([])
   const [showAnimation, setShowAnimation] = useState(false)
   const [currentAnimationIndex, setCurrentAnimationIndex] = useState(0)
-
-  // BroadcastChannel for cross-tab communication
-  const drawChannel = new BroadcastChannel('lucky-draw-channel')
+  const [drawChannel] = useState(() => new BroadcastChannel('lucky-draw-channel'))
 
   useEffect(() => {
     loadEligibleCount()
@@ -52,7 +50,7 @@ export default function DrawPage() {
 
       // Get all eligible participants for rolling animation
       const eligibleData = await getEligibleParticipants()
-      const allParticipants = eligibleData.eligible.map((p: Participant) => p.employee_name)
+      const allParticipants = eligibleData.eligible
 
       const result = await conductDraw(numberOfWinners, prizeRank, prizeName)
       setWinners(result.winners)
@@ -73,7 +71,9 @@ export default function DrawPage() {
 
       await loadEligibleCount()
     } catch (error: any) {
-      alert(error.response?.data?.error || '່ເກິດຂໍ້ຜິດພາດການຈັບລາງວັນ')
+      console.error('Draw error:', error)
+      const errorMessage = error.response?.data?.error || error.message || 'ເກິດຂໍ້ຜິດພາດການຈັບລາງວັນ'
+      alert(errorMessage)
       setShowAnimation(false)
     } finally {
       setDrawing(false)

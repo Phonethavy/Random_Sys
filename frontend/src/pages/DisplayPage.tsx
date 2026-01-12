@@ -61,6 +61,7 @@ export default function DisplayPage() {
   const [rollingNames, setRollingNames] = useState<Participant[]>([])
   const [showParticipantsList, setShowParticipantsList] = useState(false)
   const [participants, setParticipants] = useState<Participant[]>([])
+  const [drawChannel] = useState(() => new BroadcastChannel('lucky-draw-channel'))
 
   const loadParticipants = async () => {
     try {
@@ -98,32 +99,33 @@ export default function DisplayPage() {
     const drawChannel = new BroadcastChannel('lucky-draw-channel')
     
     const handleMessage = async (event: MessageEvent) => {
+      console.log('Received message:', event.data)
       if (event.data.type === 'DRAW_RESULT') {
-        // Reload participants first to ensure we have the latest data
-        let freshParticipants = event.data.allParticipants || []
+        // Get participants for rolling animation
+        let freshParticipants: Participant[] = event.data.allParticipants || []
+        
+        // If no participants sent, fetch from API
         if (freshParticipants.length === 0) {
           try {
             const data = await getEligibleParticipants()
             freshParticipants = data.eligible
-            setParticipants(freshParticipants)
           } catch (error) {
             console.error('Failed to load participants:', error)
           }
         }
         
+        console.log('Fresh participants for rolling:', freshParticipants)
+        
         // Start rolling animation
+        setRollingNames(freshParticipants)
         setIsRolling(true)
         setShowPopup(true)
-        setShowParticipantsList(true)
-        
-        // Get random names for rolling effect
-        setRollingNames(freshParticipants)
         
         // Stop rolling after 3 seconds and show winners
         setTimeout(() => {
           setIsRolling(false)
           setCurrentWinners(event.data.winners)
-          setDisplayMessage(event.data.prizeName || 'ຜູ້ໂຊກດີ')
+          setDisplayMessage(event.data.prizeName || 'ผู้โชคดี')
           setShowConfetti(true)
           
           // Hide confetti after 5 seconds
@@ -318,7 +320,7 @@ export default function DisplayPage() {
       )}
 
       {/* Winners Popup Modal */}
-      {showPopup && currentWinners.length > 0 && (
+      {showPopup && (isRolling || currentWinners.length > 0) && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in">
           {/* Backdrop */}
           <div 
