@@ -124,7 +124,7 @@ const clearAllWinners = (req, res) => {
     
     res.json({ 
       success: true, 
-      message: 'ลบข้อมูลผู้ชนะทั้งหมดเรียบร้อย',
+      message: 'ລຶບຂໍ້ມູນຜູ້ຊະນະທັງໝົດສໍາເລັດແລ້ວ',
       deleted: result.changes
     });
   } catch (error) {

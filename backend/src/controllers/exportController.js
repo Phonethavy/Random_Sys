@@ -21,9 +21,9 @@ const exportEligibleToExcel = (req, res) => {
 
     // Create workbook
     const ws = XLSX.utils.json_to_sheet(eligible.map(p => ({
-      'ชื่อพนักงาน': p.employee_name,
-      'รหัสพนักงาน': p.employee_id,
-      'บริษัท': p.company
+      'Name_employee': p.employee_name,
+      'Employee_ID': p.employee_id,
+      'Company': p.company
     })));
 
     const wb = XLSX.utils.book_new();
@@ -69,8 +69,8 @@ const exportEligibleToPDF = (req, res) => {
     doc.pipe(res);
 
     // Add title
-    doc.fontSize(20).text('รายชื่อผู้มีสิทธิ์ลุ้นรับรางวัล', { align: 'center' });
-    doc.fontSize(12).text(`ณ วันที่ ${new Date().toLocaleDateString('th-TH')}`, { align: 'center' });
+    doc.fontSize(20).text('List of award recipients', { align: 'center' });
+    doc.fontSize(12).text(`Date ${new Date().toLocaleDateString('la-LA')}`, { align: 'center' });
     doc.moveDown(2);
 
     // Add table header
@@ -79,9 +79,9 @@ const exportEligibleToPDF = (req, res) => {
     const startX = 50;
 
     doc.fontSize(10).font('Helvetica-Bold');
-    doc.text('ชื่อพนักงาน', startX, tableTop, { width: colWidths.name });
-    doc.text('รหัสพนักงาน', startX + colWidths.name, tableTop, { width: colWidths.id });
-    doc.text('บริษัท', startX + colWidths.name + colWidths.id, tableTop, { width: colWidths.company });
+    doc.text('Name_employee', startX, tableTop, { width: colWidths.name });
+    doc.text('Employee_ID', startX + colWidths.name, tableTop, { width: colWidths.id });
+    doc.text('Company', startX + colWidths.name + colWidths.id, tableTop, { width: colWidths.company });
 
     doc.moveTo(startX, doc.y + 5).lineTo(startX + 450, doc.y + 5).stroke();
     doc.moveDown(0.5);
@@ -111,7 +111,7 @@ const exportEligibleToPDF = (req, res) => {
     });
 
     // Add footer
-    doc.fontSize(8).text(`รวมทั้งหมด ${eligible.length} คน`, startX, doc.page.height - 50);
+    doc.fontSize(8).text(`ລວມທັງໝົດ ${eligible.length} ຄົນ`, startX, doc.page.height - 50);
 
     doc.end();
 
@@ -134,12 +134,12 @@ const exportWinnersToExcel = (req, res) => {
     `).all();
 
     const ws = XLSX.utils.json_to_sheet(winners.map(w => ({
-      'ชื่อพนักงาน': w.employee_name,
-      'รหัสพนักงาน': w.employee_id,
-      'บริษัท': w.company,
-      'รางวัล': w.prize_name,
-      'ลำดับรางวัล': w.prize_rank,
-      'วันที่': new Date(w.draw_timestamp).toLocaleString('th-TH')
+      'Name_employee': w.employee_name,
+      'Employee_ID': w.employee_id,
+      'Company': w.company,
+      'Prize': w.prize_name,
+      'Prize_rank': w.prize_rank,
+      'Date': new Date(w.draw_timestamp).toLocaleString('la-LA')
     })));
 
     const wb = XLSX.utils.book_new();
